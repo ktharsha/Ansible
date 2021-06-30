@@ -1,0 +1,23 @@
+--- 
+  - name: copy a sample vhosts file to the apache config dir
+    hosts: servers
+    gather_facts: no
+    tasks:
+      - name: copy a file from sample doc and place is in config dir
+        template:
+          src: /usr/share/doc/httpd-2.4.6/httpd-vhosts.conf
+          dest: /etc/httpd/conf.d
+        notify:
+          - restart mariadb
+          - restart apache
+
+    handlers:
+      - name: restart mariadb
+        service:
+          name: mariadb
+          state: restarted
+
+      - name: restart apache
+        service:
+          name: httpd
+          state: restarted
