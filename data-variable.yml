@@ -1,0 +1,67 @@
+---
+  - name: Deploy and starting apache, mariadb services
+    hosts: servers
+    vars:
+      web_pkg: httpd
+      firewall_pkg: firewalld
+      web_service: httpd
+      firewall_service: firewalld
+      db_pkg: mariadb-server
+      python_pkg: MySQL-python.x86_64 
+      rule: http
+      db_service: mariadb
+
+    tasks:
+      - name: requried packages are installed and up to date
+        yum:
+          name:
+            - "{{ web_pkg }}"
+            - "{{ firewall_pkg }}"
+            - "{{ python_pkg }}"
+            - "{{ db_pkg }}"
+          state: latest
+
+      - name: The {{ firewall_service }} service is started and enabled
+        service:
+          name: "{{ firewall_service }}"
+          enabled: true
+          state: started
+
+      - name: The {{ web_service }} service is started and enabled
+        service:
+          name: "{{ web_service }}"
+          enabled: true
+          state: started
+
+      - name: web content need to be placed
+        copy:
+          content: "Apache web and mariadb packages and insalled in"
+          dest: /var/www/html/index.html
+
+      - name: the firewall port for the http {{rule}} to be enabled 
+        firewalld:
+          service: "{{ rule}}"
+          permanent: true
+          immediate: true
+          state: enabled
+
+      - name: the {{ db_service }} need to the stated and enabled
+        service:
+          name: "{{ db_service }}"
+          enabled: true
+          state: started
+
+
+  - name: verify apache service  is reachable
+    hosts: localhost
+    become: false
+    tasks:
+      - name: ensure web servcie is reachabled
+        uri:
+          url: http://node1.example.com
+          status_code: 200
+
+      - name: ensure web servcie is reachabled
+        uri:
+          url: http://node2.example.com
+          status_code: 200
