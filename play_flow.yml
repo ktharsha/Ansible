@@ -1,0 +1,32 @@
+---
+  - name: Checking for postfix, dovecot and mariadb-sevver services
+    hosts: servers
+    gather_facts: no
+    vars:
+      my_packages:
+        - mariadb-server
+        - postfix
+        - dovecot
+    tasks:
+      - name: packages installation
+        yum:
+          name: "{{ item }}"
+          state: latest
+        loop: "{{ my_packages }}"
+
+  - name: checking for servcie status
+    hosts: servers
+    gather_facts: no
+    vars:
+      all_services:
+        - postfix
+        - dovecot
+        - mariadb
+    tasks:
+      - name: postfix and dovecot are running
+        service: 
+          name: "{{ item }}"
+          state: started
+        loop: "{{ all_services }}"
+
+
