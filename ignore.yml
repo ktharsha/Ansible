@@ -1,0 +1,23 @@
+--- 
+  - name: copy a sample vhosts file to the apache config dir
+    hosts: servers
+    gather_facts: no
+    tasks:
+      - name: copy a file from sample doc and place is in config dir
+        template:
+          src: /usr/share/doc/httpd-2.4.6/httpd-vhosts.conf
+          dest: /etc/httpd/conf.d
+        notify:
+          - restart apache
+      
+      - name: Latest version of notapkg is installed
+        yum:
+          name: notapkg
+          state: latest
+        ignore_errors: yes
+
+    handlers:
+      - name: restart apache
+        service:
+          name: httpd
+          state: restarted
